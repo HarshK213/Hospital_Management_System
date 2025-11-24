@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const labResultSchema = new mongoose.Schema(
+const prescriptionSchema = new mongoose.Schema(
   {
     id: {
       type: String,
@@ -8,35 +8,35 @@ const labResultSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    laborderid: {
+    visitid: {
       type: String,
       required: true,
-      ref: "LabOrder",
+      ref: "Visit",
     },
-    testcode: {
-      type: String,
-      required: true,
-      trim: true,
-      maxLength: 45,
-    },
-    result: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    resultedby: {
+    prescribedby: {
       type: String,
       required: true,
       ref: "User",
     },
-    resultedat: {
+    prescribedat: {
       type: Date,
       required: true,
     },
-    attachment: {
+    items: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    status: {
+      type: String,
+      required: true,
+      trim: true,
+      maxLength: 45,
+      enum: ["active", "completed", "cancelled"],
+    },
+    notes: {
       type: String,
       trim: true,
-      maxLength: 255,
     },
   },
   {
@@ -44,4 +44,4 @@ const labResultSchema = new mongoose.Schema(
   },
 );
 
-export const Visit = mongoose.model("Visit", labResultSchema);
+export const Visit = mongoose.model("Visit", prescriptionSchema);

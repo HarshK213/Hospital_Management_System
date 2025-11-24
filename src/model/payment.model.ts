@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const labResultSchema = new mongoose.Schema(
+const paymentSchema = new mongoose.Schema(
   {
     id: {
       type: String,
@@ -8,35 +8,35 @@ const labResultSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    laborderid: {
+    invoiceid: {
       type: String,
       required: true,
-      ref: "LabOrder",
+      ref: "Invoice",
     },
-    testcode: {
+    paidamount: {
+      type: Number,
+      required: true,
+    },
+    paidat: {
+      type: Date,
+      required: true,
+    },
+    paymentmethod: {
       type: String,
       required: true,
       trim: true,
       maxLength: 45,
+      enum: ["cash", "card", "insurance", "bank-transfer"],
     },
-    result: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    resultedby: {
-      type: String,
-      required: true,
-      ref: "User",
-    },
-    resultedat: {
-      type: Date,
-      required: true,
-    },
-    attachment: {
+    reference: {
       type: String,
       trim: true,
       maxLength: 255,
+    },
+    receivedby: {
+      type: String,
+      required: true,
+      ref: "User",
     },
   },
   {
@@ -44,4 +44,4 @@ const labResultSchema = new mongoose.Schema(
   },
 );
 
-export const Visit = mongoose.model("Visit", labResultSchema);
+export const Visit = mongoose.model("Visit", paymentSchema);
