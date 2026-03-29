@@ -1,0 +1,73 @@
+import React from 'react';
+import { useForm } from 'react-hook-form';
+
+const AddNustingNote = () => {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+  const onSubmit = (data) => {
+    console.log('Nursing note data:', data);
+    // In a real app, you would send this data to your backend API
+    alert('Nursing note added successfully!');
+    reset();
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-50 p-6">
+      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
+        <h2 className="text-2xl font-bold text-primary mb-6">Add Nursing Note</h2>
+        
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-neutral mb-2">Patient ID</label>
+            <input
+              {...register('patientId', {
+                required: 'Patient ID is required'
+              })}
+              className={`w-full px-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
+                errors.patientId ? 'border-red-500' : ''
+              }`}
+              placeholder="Enter patient ID"
+            />
+            {errors.patientId && (
+              <p className="text-red-500 text-sm mt-1">{errors.patientId.message}</p>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-neutral mb-2">Nursing Note</label>
+            <textarea
+              {...register('note', {
+                required: 'Nursing note is required'
+              })}
+              className={`w-full px-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary h-32 ${
+                errors.note ? 'border-red-500' : ''
+              }`}
+              placeholder="Enter nursing note, observations, or care details"
+            />
+            {errors.note && (
+              <p className="text-red-500 text-sm mt-1">{errors.note.message}</p>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <button
+              type="submit"
+              className="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-md transition-colors duration-200 flex items-center gap-2"
+            >
+              Add Nursing Note
+            </button>
+            <button
+              type="button"
+              onClick={reset}
+              className="bg-neutral-200 hover:bg-neutral-300 text-neutral-800 font-medium px-6 py-3 rounded-md transition-colors duration-200"
+            >
+              Clear Form
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddNustingNote;
