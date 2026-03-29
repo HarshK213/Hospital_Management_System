@@ -1,9 +1,9 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
-import { LabReport } from "../models/lab_report.model.js";
-import { LabRequest } from "../models/lab_request.model.js";
+import { LabReport } from "./lab_report.model.js";
+import { LabRequest } from "./lab_request.model.js";
 
 const viewLabRequest = asyncHandler(async (req, res) => {
   const { status } = req.query;

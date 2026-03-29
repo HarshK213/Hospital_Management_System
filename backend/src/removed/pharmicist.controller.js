@@ -1,10 +1,10 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
-import { Medicine } from "../models/medicines.model.js";
-import { PharmacySale } from "../models/pharmacy_sale.model.js";
-import { PharmacySaleItem } from "../models/pharmacy_sale_item.model.js";
+import { Medicine } from "./medicines.model.js";
+import { PharmacySale } from "./pharmacy_sale.model.js";
+import { PharmacySaleItem } from "./pharmacy_sale_item.model.js";
 import { Bill } from "../models/bill.model.js";
 
 const viewInventory = asyncHandler(async (req, res) => {

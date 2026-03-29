@@ -42,11 +42,10 @@ const staffSchema = mongoose.Schema(
   }
 );
 
-staffSchema.pre("save", async function(next){
+staffSchema.pre("save", async function(){
      if(this.isModified("password")){
           this.password = await bcrypt.hash(this.password, 10);
      }
-     next();
 })
 
 staffSchema.methods.isPasswordCorrect = async function (password) {
@@ -54,19 +53,19 @@ staffSchema.methods.isPasswordCorrect = async function (password) {
 }
 
 staffSchema.methods.generateAccessToken = function(){
-     // console.log("Inside Access token")
-     return jwt.sign(
-          {
-               _id : this._id,
-               email : this.email,
-               userName : this.userName,
-               fullName : this.fullName
-          },
-          process.env.ACCESS_TOKEN_SECRET,
-          {
-               expiresIn : process.env.ACCESS_TOKEN_EXPIRY
-          }
-     )
+      // console.log("Inside Access token")
+      return jwt.sign(
+           {
+                _id : this._id,
+                email : this.email,
+                userName : this.user_id,
+                fullName : this.fullname
+           },
+           process.env.ACCESS_TOKEN_SECRET,
+           {
+                expiresIn : process.env.ACCESS_TOKEN_EXPIRY
+           }
+      )
 }
 
 staffSchema.methods.generateRefreshToken = function(){

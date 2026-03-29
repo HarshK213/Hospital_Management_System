@@ -17,10 +17,6 @@ import AddMedicalRecord from "./pages/doctor/AddMedicalRecord.jsx";
 import DoctorPatientDetails from "./pages/doctor/PatientDetails.jsx";
 import SeeAppointment from "./pages/doctor/SeeAppointment.jsx";
 
-// Nurse pages
-import AddNustingNote from "./pages/nurse/AddNustingNote.jsx";
-import NursePatientDetails from "./pages/nurse/PatientDetails.jsx";
-
 // Patient pages
 import PatientBookAppointment from "./pages/patient/BookAppointment.jsx";
 import PatientPatientDetails from "./pages/patient/PatientDetails.jsx";
@@ -83,11 +79,11 @@ function App() {
           <Route path="/doctor/see-appointment" element={<SeeAppointment />} />
 
           {/* Nurse routes */}
-          <Route path="/nurse/add-note" element={<AddNustingNote />} />
+          {/* <Route path="/nurse/add-note" element={<AddNustingNote />} />
           <Route
             path="/nurse/patient-details"
             element={<NursePatientDetails />}
-          />
+          /> */}
 
           {/* Patient routes */}
           <Route

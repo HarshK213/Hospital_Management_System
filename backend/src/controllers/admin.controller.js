@@ -1,9 +1,9 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { Staff } from "../models/staff.model.js";
-import { LabReport } from "../models/lab_report.model.js";
+// import { LabReport } from "../models/lab_report.model.js";
 import { MedicalHistory } from "../models/medical_history.model.js";
 
 const addStaff = asyncHandler(async (req, res) => {
@@ -56,21 +56,21 @@ const staffStatus = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, staff, "Staff status updated successfully"));
 });
 
-const viewReport = asyncHandler(async (req, res) => {
-  const { patientId } = req.params;
+// const viewReport = asyncHandler(async (req, res) => {
+//   const { patientId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(patientId)) {
-    throw new ApiError(400, "Invalid patient ID");
-  }
+//   if (!mongoose.Types.ObjectId.isValid(patientId)) {
+//     throw new ApiError(400, "Invalid patient ID");
+//   }
 
-  const reports = await LabReport.find({ patient_id: patientId })
-    .populate("order_id")
-    .sort({ createdAt: -1 });
+//   const reports = await LabReport.find({ patient_id: patientId })
+//     .populate("order_id")
+//     .sort({ createdAt: -1 });
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
-});
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
+// });
 
 const viewMedicalHistory = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
@@ -98,5 +98,5 @@ export {
     addStaff,
     staffStatus,
     viewMedicalHistory,
-    viewReport
+    // viewReport
 }

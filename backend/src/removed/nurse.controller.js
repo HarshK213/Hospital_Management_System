@@ -1,11 +1,11 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { Patient } from "../models/patient.model.js";
 import { MedicalHistory } from "../models/medical_history.model.js";
 import { NursingNote } from "../models/nursing_note.model.js";
-import { Admission } from "../models/admission.model.js";
+// import { Admission } from "../models/admission.model.js";
 
 const viewPatientProfile = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
@@ -94,39 +94,39 @@ const recordNursingNote = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, createdNote, "Nursing note recorded successfully"));
 });
 
-const updatePatientStatus = asyncHandler(async (req, res) => {
-  const { admissionId } = req.params;
-  const { status } = req.body;
+// const updatePatientStatus = asyncHandler(async (req, res) => {
+//   const { admissionId } = req.params;
+//   const { status } = req.body;
 
-  if (!admissionId || !status) {
-    throw new ApiError(400, "Admission ID and status are required");
-  }
+//   if (!admissionId || !status) {
+//     throw new ApiError(400, "Admission ID and status are required");
+//   }
 
-  if (!mongoose.Types.ObjectId.isValid(admissionId)) {
-    throw new ApiError(400, "Invalid admission ID");
-  }
+//   if (!mongoose.Types.ObjectId.isValid(admissionId)) {
+//     throw new ApiError(400, "Invalid admission ID");
+//   }
 
-  const validStatuses = ["admitted", "discharged", "critical", "stable", "observation"];
-  if (!validStatuses.includes(status)) {
-    throw new ApiError(400, "Invalid status value");
-  }
+//   const validStatuses = ["admitted", "discharged", "critical", "stable", "observation"];
+//   if (!validStatuses.includes(status)) {
+//     throw new ApiError(400, "Invalid status value");
+//   }
 
-  const admission = await Admission.findById(admissionId);
-  if (!admission) {
-    throw new ApiError(404, "Admission not found");
-  }
+//   const admission = await Admission.findById(admissionId);
+//   if (!admission) {
+//     throw new ApiError(404, "Admission not found");
+//   }
 
-  admission.status = status;
-  await admission.save();
+//   admission.status = status;
+//   await admission.save();
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, admission, "Patient status updated successfully"));
-});
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, admission, "Patient status updated successfully"));
+// });
 
 export {
   viewPatientProfile,
   viewPatientMedicalHistory,
   recordNursingNote,
-  updatePatientStatus
+  // updatePatientStatus
 }

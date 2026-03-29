@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import 'material-symbols/outlined.css';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -86,7 +87,7 @@ const HomePage = () => {
                                             <span className="material-symbols-outlined text-primary">history_edu</span>
                                         </div>
                                         <div>
-                                            <h4 className="font-headline font-bold text-on-surface">Established 1998</h4>
+                                            <h4 className="font-headline font-bold text-on-surface">Established 2026</h4>
                                             <p className="text-sm text-on-surface-variant">Over two decades of excellence in regional healthcare.</p>
                                         </div>
                                     </div>

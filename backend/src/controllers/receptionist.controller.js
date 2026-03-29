@@ -1,11 +1,11 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import { Appointment } from "../models/appointment.model.js";
-import { Admission } from "../models/admission.model.js";
+// import { Admission } from "../models/admission.model.js";
 import { Patient } from "../models/patient.model.js";
 import { Bill } from "../models/bill.model.js";
 
@@ -102,32 +102,32 @@ const updateAppointment = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedAppointment, "Appointment updated successfully"));
 });
 
-const admitEntry = asyncHandler(async (req, res) => {
-  const { patientId, bedId } = req.body;
+// const admitEntry = asyncHandler(async (req, res) => {
+//   const { patientId, bedId } = req.body;
 
-  if (!patientId || !bedId) {
-    throw new ApiError(400, "Patient ID and Bed ID are required");
-  }
+//   if (!patientId || !bedId) {
+//     throw new ApiError(400, "Patient ID and Bed ID are required");
+//   }
 
-  if (!mongoose.Types.ObjectId.isValid(patientId) || !mongoose.Types.ObjectId.isValid(bedId)) {
-    throw new ApiError(400, "Invalid patient or bed ID");
-  }
+//   if (!mongoose.Types.ObjectId.isValid(patientId) || !mongoose.Types.ObjectId.isValid(bedId)) {
+//     throw new ApiError(400, "Invalid patient or bed ID");
+//   }
 
-  const admission = await Admission.create({
-    patient_id: patientId,
-    bed_id: bedId,
-    admission_date: new Date(),
-    status: "admitted",
-  });
+//   const admission = await Admission.create({
+//     patient_id: patientId,
+//     bed_id: bedId,
+//     admission_date: new Date(),
+//     status: "admitted",
+//   });
 
-  const createdAdmission = await Admission.findById(admission._id)
-    .populate("patient_id", "fullname email phone")
-    .populate("bed_id", "bed_number ward");
+//   const createdAdmission = await Admission.findById(admission._id)
+//     .populate("patient_id", "fullname email phone")
+//     .populate("bed_id", "bed_number ward");
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, createdAdmission, "Patient admitted successfully"));
-});
+//   return res
+//     .status(201)
+//     .json(new ApiResponse(201, createdAdmission, "Patient admitted successfully"));
+// });
 
 const viewPatientProfile = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
@@ -185,7 +185,7 @@ export {
   registerPatient,
   bookAppointment,
   updateAppointment,
-  admitEntry,
+  // admitEntry,
   viewPatientProfile,
   generateOPDBill
 }

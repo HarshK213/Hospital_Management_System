@@ -1,9 +1,9 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { Bed } from "../models/bed.model.js";
-import { Ward } from "../models/ward.model.js";
+import { Ward } from "./ward.model.js";
 import { Admission } from "../models/admission.model.js";
 
 const assignBed = asyncHandler(async (req, res) => {

@@ -28,11 +28,11 @@ const patientSchema = mongoose.Schema(
       default: false,
     },
     emailVerifyToken: {
-      type: String,
+      type: String || null,
       required: true,
     },
     emailVerificationTokenExpiry: {
-      type: Date,
+      type: Date || null,
       index: { expires: 0 },
     },
     providers: {
@@ -57,27 +57,29 @@ patientSchema.pre("save", async function(next){
      if(this.isModified("password")){
           this.password = await bcrypt.hash(this.password, 10);
      }
-     next();
+     next;
 })
 
 patientSchema.methods.isPasswordCorrect = async function (password) {
+  console.log(password)
+  console.log(this.password)
      return await bcrypt.compare(password, this.password)     
 }
 
 patientSchema.methods.generateAccessToken = function(){
-     // console.log("Inside Access token")
-     return jwt.sign(
-          {
-               _id : this._id,
-               email : this.email,
-               userName : this.userName,
-               fullName : this.fullName
-          },
-          process.env.ACCESS_TOKEN_SECRET,
-          {
-               expiresIn : process.env.ACCESS_TOKEN_EXPIRY
-          }
-     )
+      // console.log("Inside Access token")
+      return jwt.sign(
+           {
+                _id : this._id,
+                email : this.email,
+                userName : this.username,
+                fullName : this.fullname
+           },
+           process.env.ACCESS_TOKEN_SECRET,
+           {
+                expiresIn : process.env.ACCESS_TOKEN_EXPIRY
+           }
+      )
 }
 
 patientSchema.methods.generateRefreshToken = function(){

@@ -1,4 +1,4 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import bcrypt from 'bcrypt'
@@ -7,28 +7,17 @@ import mongoose from "mongoose";
 import jwt from 'jsonwebtoken'
 import { Appointment } from "../models/appointment.model.js";
 import { MedicalHistory } from "../models/medical_history.model.js";
-import { LabReport } from "../models/lab_report.model.js";
+// import { LabReport } from "../models/lab_report.model.js";
 import { Bill } from "../models/bill.model.js";
 import { Payment } from "../models/payment.model.js";
 import { Patient } from "../models/patient.model.js";
 
-const generateAccessandRefreshTokens = async (patientId) => {
-  try {
-    const patient = await Patient.findById(patientId);
-    const accessToken = patient.generateAccessToken();
-    const refreshToken = patient.generateRefreshToken();
 
-    patient.refreshToken = refreshToken;
-    await patient.save({ validateBeforeSave: false });
-
-    return { accessToken, refreshToken };
-  } catch (error) {
-    throw new ApiError(500, "Something went wrong while generating access and refresh tokens");
-  }
-};
 
 const registerPatient = asyncHandler(async (req, res) => {
-  const { username, fullname, email, password, phone } = req.body;
+  const { fullname, email, password } = req.body;
+
+  console.log(req.body);
 
   if (!fullname || !email || !password) {
     throw new ApiError(400, "Fullname, email, and password are required");
@@ -39,7 +28,10 @@ const registerPatient = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User with this email already exists");
   }
 
-  const hashedPass = await bcrypt.hash(password, 10);
+  const username = email.split('@')[0];
+  const phone = req.body.phone || null;
+
+  const hashedPass = await bcrypt.hash(password, 5);
   const emailVerifyToken = crypto.randomBytes(32).toString("hex");
   const emailVerificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
@@ -80,8 +72,8 @@ const verifyUser = asyncHandler(async (req, res) => {
   }
 
   user.isVerified = true;
-  user.emailVerifyToken = null;
-  user.emailVerificationTokenExpiry = null;
+  // user.emailVerifyToken = null;
+  // user.emailVerificationTokenExpiry = null;
 
   await user.save();
 
@@ -92,50 +84,7 @@ const verifyUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedUser, "Email Verified Successfully"));
 });
 
-const loginPatient = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
 
-  if (!email || !password) {
-    throw new ApiError(400, "Email and Password are Required");
-  }
-
-  const user = await Patient.findOne({ email });
-
-  if (!user) {
-    throw new ApiError(400, "User does not exist");
-  }
-
-  const isPasswordCorrect = await user.isPasswordCorrect(password);
-
-  if (!isPasswordCorrect) {
-    throw new ApiError(400, "Invalid user credentials");
-  }
-
-  const { accessToken, refreshToken } = await generateAccessandRefreshTokens(user._id);
-
-  const loggedInUser = await Patient.findById(user._id).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
-
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
-
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          user: loggedInUser,
-          accessToken,
-          refreshToken
-        },
-        "User Logged in Successfully"
-      )
-    );
-});
 
 const bookAppointment = asyncHandler(async (req, res) => {
   const { doctorId, date, time, reason } = req.body;
@@ -248,42 +197,42 @@ const viewPaymentHistory = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, payments, "Payment history fetched successfully"));
 });
 
-const viewReport = asyncHandler(async (req, res) => {
-  const patientId = req.user._id;
+// const viewReport = asyncHandler(async (req, res) => {
+//   const patientId = req.user._id;
 
-  const reports = await LabReport.find({ patient_id: patientId })
-    .populate({
-      path: "order_id",
-      populate: [
-        { path: "test_id", select: "test_name" },
-        { path: "doctor_id", select: "fullname" }
-      ]
-    })
-    .sort({ createdAt: -1 });
+//   const reports = await LabReport.find({ patient_id: patientId })
+//     .populate({
+//       path: "order_id",
+//       populate: [
+//         { path: "test_id", select: "test_name" },
+//         { path: "doctor_id", select: "fullname" }
+//       ]
+//     })
+//     .sort({ createdAt: -1 });
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
-});
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
+// });
 
-const downloadReport = asyncHandler(async (req, res) => {
-  const { reportId } = req.params;
-  const patientId = req.user._id;
+// const downloadReport = asyncHandler(async (req, res) => {
+//   const { reportId } = req.params;
+//   const patientId = req.user._id;
 
-  if (!mongoose.Types.ObjectId.isValid(reportId)) {
-    throw new ApiError(400, "Invalid report ID");
-  }
+//   if (!mongoose.Types.ObjectId.isValid(reportId)) {
+//     throw new ApiError(400, "Invalid report ID");
+//   }
 
-  const report = await LabReport.findOne({ _id: reportId, patient_id: patientId });
+//   const report = await LabReport.findOne({ _id: reportId, patient_id: patientId });
 
-  if (!report) {
-    throw new ApiError(404, "Report not found");
-  }
+//   if (!report) {
+//     throw new ApiError(404, "Report not found");
+//   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, report, "Report data retrieved successfully"));
-});
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, report, "Report data retrieved successfully"));
+// });
 
 const updateDetails = asyncHandler(async (req, res) => {
   const { fullname, phone } = req.body;
@@ -309,14 +258,14 @@ const updateDetails = asyncHandler(async (req, res) => {
 export {
   registerPatient,
   verifyUser,
-  loginPatient,
+  // loginPatient,
   bookAppointment,
   listAllDoctor,
   viewAllBill,
   viewBill,
   viewMedicalHistory,
   viewPaymentHistory,
-  viewReport,
-  downloadReport,
+  // viewReport,
+  // downloadReport,
   updateDetails
 }

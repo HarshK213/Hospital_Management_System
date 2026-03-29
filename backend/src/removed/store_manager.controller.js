@@ -1,10 +1,10 @@
-import asyncHandler from "../middleware/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
-import { InventoryItem } from "../models/inventory_item.model.js";
-import { InventoryTransaction } from "../models/inventory_transaction.model.js";
-import { Supplier } from "../models/supplier.model.js";
+import { InventoryItem } from "./inventory_item.model.js";
+import { InventoryTransaction } from "./inventory_transaction.model.js";
+import { Supplier } from "./supplier.model.js";
 
 const updateInventory = asyncHandler(async (req, res) => {
   const { itemId } = req.params;

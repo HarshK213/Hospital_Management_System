@@ -8,15 +8,15 @@ const medicalHistorySchema = mongoose.Schema(
       required: true,
     },
     medical_record:{
-      type: String[],
+      type: [String],
       required: true,
     },
     lap_report:{
-      type: String[],
+      type: [String],
       required: true,
     },
     admission_history:{
-      type: String[],
+      type: [String],
       required: true,
     }
   },
