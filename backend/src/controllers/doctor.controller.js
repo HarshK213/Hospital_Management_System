@@ -99,18 +99,27 @@ const addMedicalRecord = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
   const { diagnosis, prescription, notes } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(patientId)) {
-    throw new ApiError(400, "Invalid patient ID");
-  }
+  console.log(patientId)
+
+  // if (!mongoose.Types.ObjectId.isValid(patientId)) {
+  //   throw new ApiError(400, "Invalid patient ID");
+  // }
 
   if (!diagnosis || !prescription || !notes) {
     throw new ApiError(400, "Diagnosis, prescription, and notes are required");
   }
 
+  const patient = await Patient.findOne({username: patientId})
+  if(!patient){
+    throw new ApiError(404, "Patient not found");
+  }
+
+  console.log(patient._id)
+
   const doctorId = req.user._id;
 
   const medicalRecord = await MedicalRecord.create({
-    patient_id: patientId,
+    patient_id: patient._id,
     doctor_id: doctorId,
     diagnosis,
     prescription,
@@ -118,13 +127,13 @@ const addMedicalRecord = asyncHandler(async (req, res) => {
     date: new Date(),
   });
 
-  let medicalHistory = await MedicalHistory.findOne({ patient_id: patientId });
+  let medicalHistory = await MedicalHistory.findOne({ patient_id: patient._id });
   if (medicalHistory) {
     medicalHistory.medical_record.push(medicalRecord._id);
     await medicalHistory.save();
   } else {
     await MedicalHistory.create({
-      patient_id: patientId,
+      patient_id: patient._id,
       medical_record: [medicalRecord._id],
       lap_report: [],
       admission_history: [],

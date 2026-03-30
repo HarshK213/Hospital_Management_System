@@ -255,6 +255,51 @@ const updateDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedPatient, "Patient details updated successfully"));
 });
 
+const getPatientByIdForDoctor = asyncHandler(async (req, res) => {
+  const { patientId } = req.params;
+
+  console.log(patientId)
+
+  // if (!mongoose.Types.ObjectId.isValid(patientId)) {
+  //   throw new ApiError(400, "Invalid patient ID");
+  // }
+
+  const patient = await Patient.findOne({username: patientId}).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  const medicalHistory = await MedicalHistory.findOne({ patient_id: patient._id })
+    .populate({
+      path: "medical_record",
+      populate: { path: "doctor_id", select: "fullname" }
+    })
+    .sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { patient, medicalHistory }, "Patient data fetched successfully"));
+});
+
+const searchPatientByUsername = asyncHandler(async (req, res) => {
+  const { username } = req.query;
+
+  if (!username) {
+    throw new ApiError(400, "Username is required");
+  }
+
+  const patient = await Patient.findOne({ username }).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, patient, "Patient found successfully"));
+});
+
 export {
   registerPatient,
   verifyUser,
@@ -267,5 +312,7 @@ export {
   viewPaymentHistory,
   // viewReport,
   // downloadReport,
-  updateDetails
+  updateDetails,
+  getPatientByIdForDoctor,
+  searchPatientByUsername
 }

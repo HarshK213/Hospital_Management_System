@@ -92,6 +92,12 @@ const Signup = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-[#f0f7f9] to-[#e8f4f6]">
+            <button
+                onClick={() => navigate('/')}
+                className="fixed top-4 left-4 w-10 h-10 sm:w-12 sm:h-12 bg-[#007a8a] hover:bg-[#005f6c] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50"
+            >
+                <span className="material-symbols-outlined text-lg sm:text-xl">home</span>
+            </button>
             <style>
                 {`
                     .material-symbols-outlined {

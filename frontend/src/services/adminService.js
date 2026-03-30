@@ -6,7 +6,7 @@ const API_BASE_URL =
 export class AdminService {
   constructor() {
     this.api = axios.create({
-      baseURL: `${API_BASE_URL}/admin`,
+      baseURL: `${API_BASE_URL}`,
       withCredentials: true,
     });
 
@@ -21,17 +21,26 @@ export class AdminService {
 
   async addStaff(staffData) {
     try {
-      const response = await this.api.post("/add-staff", staffData);
-      return response.data;
+      const response = await this.api.post("/admin/add-staff", staffData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  async updateStaffStatus(staffId, statusData) {
+  async getStaffByUserId(userId) {
     try {
-      const response = await this.api.put(`/staff-status/${staffId}`, statusData);
-      return response.data;
+      const response = await this.api.get(`/admin/staff/user-id/${userId}`);
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async deleteStaff(staffId) {
+    try {
+      const response = await this.api.delete(`/admin/staff/${staffId}`);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -39,8 +48,8 @@ export class AdminService {
 
   async getPatientMedicalHistory(patientId) {
     try {
-      const response = await this.api.get(`/medical-history/${patientId}`);
-      return response.data;
+      const response = await this.api.get(`/admin/medical-history/${patientId}`);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -48,7 +57,7 @@ export class AdminService {
 
   handleError(error) {
     if (error.response) {
-      throw new Error(error.response.data.message || "Admin service error");
+      throw new Error(error.response.data?.message || "Admin service error");
     } else if (error.request) {
       throw new Error("Network error. Please check your connection.");
     } else {

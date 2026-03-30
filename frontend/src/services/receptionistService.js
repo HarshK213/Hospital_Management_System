@@ -6,7 +6,7 @@ const API_BASE_URL =
 export class ReceptionistService {
   constructor() {
     this.api = axios.create({
-      baseURL: `${API_BASE_URL}/receptionist`,
+      baseURL: API_BASE_URL,
       withCredentials: true,
     });
 
@@ -21,8 +21,8 @@ export class ReceptionistService {
 
   async registerPatient(patientData) {
     try {
-      const response = await this.api.post("/patient/register", patientData);
-      return response.data;
+      const response = await this.api.post("/receptionist/patient/register", patientData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -30,8 +30,8 @@ export class ReceptionistService {
 
   async bookAppointment(appointmentData) {
     try {
-      const response = await this.api.post("/appointment/book", appointmentData);
-      return response.data;
+      const response = await this.api.post("/receptionist/appointment/book", appointmentData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -39,8 +39,8 @@ export class ReceptionistService {
 
   async updateAppointment(appointmentId, appointmentData) {
     try {
-      const response = await this.api.put(`/appointment/${appointmentId}`, appointmentData);
-      return response.data;
+      const response = await this.api.put(`/receptionist/appointment/${appointmentId}`, appointmentData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -48,8 +48,8 @@ export class ReceptionistService {
 
   async getPatientProfile(patientId) {
     try {
-      const response = await this.api.get(`/patient/${patientId}`);
-      return response.data;
+      const response = await this.api.get(`/receptionist/patient/${patientId}`);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -57,8 +57,26 @@ export class ReceptionistService {
 
   async generateOPDBill(billData) {
     try {
-      const response = await this.api.post("/bill/opd", billData);
-      return response.data;
+      const response = await this.api.post("/receptionist/bill/opd", billData);
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getDoctors() {
+    try {
+      const response = await this.api.get("/patient/doctors");
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async searchPatientByUsername(username) {
+    try {
+      const response = await this.api.get(`/patient/search?username=${username}`);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -66,7 +84,7 @@ export class ReceptionistService {
 
   handleError(error) {
     if (error.response) {
-      throw new Error(error.response.data.message || "Receptionist service error");
+      throw new Error(error.response.data?.message || "Receptionist service error");
     } else if (error.request) {
       throw new Error("Network error. Please check your connection.");
     } else {

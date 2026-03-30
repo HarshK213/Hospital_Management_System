@@ -6,7 +6,7 @@ const API_BASE_URL =
 export class PatientService {
   constructor() {
     this.api = axios.create({
-      baseURL: `${API_BASE_URL}/patient`,
+      baseURL: API_BASE_URL,
       withCredentials: true,
     });
 
@@ -21,8 +21,8 @@ export class PatientService {
 
   async register(registrationData) {
     try {
-      const response = await this.api.post("/register", registrationData);
-      return response.data;
+      const response = await this.api.post("/patient/register", registrationData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -30,8 +30,8 @@ export class PatientService {
 
   async verify() {
     try {
-      const response = await this.api.get("/verify");
-      return response.data;
+      const response = await this.api.get("/patient/verify");
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -39,8 +39,8 @@ export class PatientService {
 
   async getDoctors() {
     try {
-      const response = await this.api.get("/doctors");
-      return response.data;
+      const response = await this.api.get("/patient/doctors");
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -48,8 +48,8 @@ export class PatientService {
 
   async bookAppointment(appointmentData) {
     try {
-      const response = await this.api.post("/appointment", appointmentData);
-      return response.data;
+      const response = await this.api.post("/patient/appointment", appointmentData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -57,8 +57,8 @@ export class PatientService {
 
   async getBills() {
     try {
-      const response = await this.api.get("/bills");
-      return response.data;
+      const response = await this.api.get("/patient/bills");
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -66,8 +66,8 @@ export class PatientService {
 
   async getBill(billId) {
     try {
-      const response = await this.api.get(`/bill/${billId}`);
-      return response.data;
+      const response = await this.api.get(`/patient/bill/${billId}`);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -75,8 +75,8 @@ export class PatientService {
 
   async getMedicalHistory() {
     try {
-      const response = await this.api.get("/medical-history");
-      return response.data;
+      const response = await this.api.get("/patient/medical-history");
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -84,8 +84,8 @@ export class PatientService {
 
   async getPayments() {
     try {
-      const response = await this.api.get("/payments");
-      return response.data;
+      const response = await this.api.get("/patient/payments");
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -93,8 +93,8 @@ export class PatientService {
 
   async updateUser(updateData) {
     try {
-      const response = await this.api.put("/update", updateData);
-      return response.data;
+      const response = await this.api.put("/patient/update", updateData);
+      return response;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -102,7 +102,7 @@ export class PatientService {
 
   handleError(error) {
     if (error.response) {
-      throw new Error(error.response.data.message || "Patient service error");
+      throw new Error(error.response.data?.message || "Patient service error");
     } else if (error.request) {
       throw new Error("Network error. Please check your connection.");
     } else {

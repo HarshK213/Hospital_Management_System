@@ -30,7 +30,7 @@ const staffSchema = mongoose.Schema(
     },
     role:{
       type: String,
-      enum: ['admin','doctor','nurse','lab technician','pharmacist','receptionist','inventory manager','in-patient manager'],
+      enum: ['admin','doctor','nurse','receptionist'],
       required: true,
     },
     refreshToken: {
