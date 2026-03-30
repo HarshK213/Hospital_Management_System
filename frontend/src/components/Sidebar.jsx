@@ -83,7 +83,7 @@ const Sidebar = () => {
             <Stethoscope size={20} />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-gray-800">ClinicalCurator</h1>
+            <h1 className="text-sm font-bold text-gray-800">Arogya</h1>
             <p className="text-xs text-gray-500">{roleLabels[role] || "Portal"}</p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import ChatBot from "./components/ChatBot";
 import { useAuth } from "./context/AuthContext";
 import Home from "./pages/home.jsx";
 import Login from "./pages/auth/Login.jsx";
@@ -21,7 +22,6 @@ import PaymentHistory from "./pages/patient/PaymentHistory.jsx";
 
 import ReceptionistBookAppointment from "./pages/receptionist/BookAppointment.jsx";
 import ReceptionistViewPatientDetails from "./pages/receptionist/ViewPatientDetails.jsx";
-// import ChangeAppointmentStatus from "./pages/receptionist/ChangeAppointmentStatus.jsx";
 import AddPatient from "./pages/receptionist/AddPatient.jsx";
 import GenerateBill from "./pages/receptionist/GenerateBill.jsx";
 
@@ -70,13 +70,13 @@ function App() {
 
           <Route path="/receptionist/book-appointment" element={<ReceptionistBookAppointment />} />
           <Route path="/receptionist/view-patient-details" element={<ReceptionistViewPatientDetails />} />
-          {/* <Route path="/receptionist/change-appointment-status" element={<ChangeAppointmentStatus />} /> */}
           <Route path="/receptionist/add-patient" element={<AddPatient />} />
           <Route path="/receptionist/generate-bill" element={<GenerateBill />} />
 
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Route>
       </Routes>
+      <ChatBot />
     </BrowserRouter>
   );
 }

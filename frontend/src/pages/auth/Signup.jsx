@@ -123,7 +123,7 @@ const Signup = () => {
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-8 xl:mb-12">
                             <span className="material-symbols-outlined text-3xl xl:text-4xl text-white">clinical_notes</span>
-                            <h1 className="font-bold text-2xl xl:text-3xl tracking-tight text-white">ClinicalCurator</h1>
+                            <h1 className="font-bold text-2xl xl:text-3xl tracking-tight text-white">Arogya</h1>
                         </div>
                         <div className="space-y-4 xl:space-y-6 max-w-sm">
                             <h2 className="font-bold text-3xl xl:text-4xl leading-tight text-white">
@@ -156,7 +156,7 @@ const Signup = () => {
                     <div className="max-w-md w-full mx-auto">
                         <div className="flex lg:hidden items-center gap-3 mb-6 sm:mb-8">
                             <span className="material-symbols-outlined text-[#007a8a] text-2xl sm:text-3xl">clinical_notes</span>
-                            <h1 className="font-bold text-xl sm:text-2xl tracking-tight text-[#007a8a]">ClinicalCurator</h1>
+                            <h1 className="font-bold text-xl sm:text-2xl tracking-tight text-[#007a8a]">Arogya</h1>
                         </div>
                         
                         <header className="mb-6 sm:mb-8">

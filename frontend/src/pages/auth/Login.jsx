@@ -127,7 +127,7 @@ const Login = () => {
                     <div className="z-10">
                         <div className="flex items-center gap-3 mb-8 xl:mb-12">
                             <span className="material-symbols-outlined text-white text-3xl xl:text-4xl">clinical_notes</span>
-                            <h1 className="font-bold text-2xl xl:text-3xl tracking-tight text-white">ClinicalCurator</h1>
+                            <h1 className="font-bold text-2xl xl:text-3xl tracking-tight text-white">Arogya</h1>
                         </div>
                         <h2 className="font-bold text-3xl xl:text-4xl 2xl:text-5xl leading-tight text-white mb-4 xl:mb-6">
                             Precision management for modern healthcare.
@@ -153,7 +153,7 @@ const Login = () => {
                 <section className="w-full lg:w-1/2 bg-white p-6 sm:p-8 md:p-10 xl:p-12 flex flex-col">
                     <div className="flex lg:hidden items-center gap-3 mb-6 sm:mb-8">
                         <span className="material-symbols-outlined text-[#007a8a] text-2xl sm:text-3xl">clinical_notes</span>
-                        <h1 className="font-bold text-xl sm:text-2xl tracking-tight text-[#007a8a]">ClinicalCurator</h1>
+                        <h1 className="font-bold text-xl sm:text-2xl tracking-tight text-[#007a8a]">Arogya</h1>
                     </div>
                     
                     <div className="mb-6 sm:mb-8">
