@@ -2,20 +2,14 @@ import mongoose from "mongoose";
 
 const billSchema = mongoose.Schema(
   {
-    patiend_id: {
+    patient_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patient",
       required: true,
     },
     appointment_id: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId || null,
       ref: "Appointment",
-      required: true,
-    },
-    admission_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admission",
-      required: true,
     },
     amount: {
       type: Number,
@@ -23,7 +17,7 @@ const billSchema = mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["medicine", "service"],
+      enum: ["consultation", "procedure", "laboratory", "pharmacy", "radiology", "emergency", "other"],
       required: true,
     },
     date: {

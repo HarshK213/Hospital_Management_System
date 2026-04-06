@@ -13,11 +13,11 @@ import { Appointment } from "../models/appointment.model.js";
 const patientProfile = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(patientId)) {
-    throw new ApiError(400, "Invalid patient ID");
-  }
+  // if (!mongoose.Types.ObjectId.isValid(patientId)) {
+  //   throw new ApiError(400, "Invalid patient ID");
+  // }
 
-  const patient = await Patient.findById(patientId).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry");
+  const patient = await Patient.findOne({username: patientId}).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry");
 
   if (!patient) {
     throw new ApiError(404, "Patient not found");
@@ -31,11 +31,12 @@ const patientProfile = asyncHandler(async (req, res) => {
 const patientMedicalHistory = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(patientId)) {
-    throw new ApiError(400, "Invalid patient ID");
+  const patient = await Patient.findOne({username: patientId})
+  if(!patient){
+    throw new ApiError(404, "Patient not found");
   }
 
-  const medicalHistory = await MedicalHistory.findOne({ patient_id: patientId })
+  const medicalHistory = await MedicalHistory.findOne({ patient_id: patient._id })
     .populate("patient_id", "fullname email phone");
 
   if (!medicalHistory) {
@@ -44,56 +45,18 @@ const patientMedicalHistory = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, null, "No medical history found"));
   }
 
+  const recordIds = medicalHistory.medical_record.map(id => new mongoose.Types.ObjectId(id));
+  
+  const medicalRecords = await MedicalRecord.find({ _id: { $in: recordIds } })
+    .populate("doctor_id", "fullname");
+
   return res
     .status(200)
-    .json(new ApiResponse(200, medicalHistory, "Medical history fetched successfully"));
+    .json(new ApiResponse(200, { 
+      patient: medicalHistory.patient_id,
+      medical_records: medicalRecords
+    }, "Medical history fetched successfully"));
 });
-
-// const labAllReport = asyncHandler(async (req, res) => {
-//   const { patientId } = req.params;
-
-//   if (!mongoose.Types.ObjectId.isValid(patientId)) {
-//     throw new ApiError(400, "Invalid patient ID");
-//   }
-
-//   const reports = await LabReport.find({ patient_id: patientId })
-//     .populate({
-//       path: "order_id",
-//       populate: [
-//         { path: "patient_id", select: "fullname" },
-//         { path: "test_id", select: "test_name" },
-//       ],
-//     })
-//     .sort({ createdAt: -1 });
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
-// });
-
-// const labReport = asyncHandler(async (req, res) => {
-//   const { reportId } = req.params;
-
-//   if (!mongoose.Types.ObjectId.isValid(reportId)) {
-//     throw new ApiError(400, "Invalid report ID");
-//   }
-
-//   const report = await LabReport.findById(reportId).populate({
-//     path: "order_id",
-//     populate: [
-//       { path: "patient_id", select: "fullname" },
-//       { path: "test_id", select: "test_name" },
-//     ],
-//   });
-
-//   if (!report) {
-//     throw new ApiError(404, "Lab report not found");
-//   }
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, report, "Lab report fetched successfully"));
-// });
 
 const addMedicalRecord = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
@@ -113,8 +76,6 @@ const addMedicalRecord = asyncHandler(async (req, res) => {
   if(!patient){
     throw new ApiError(404, "Patient not found");
   }
-
-  console.log(patient._id)
 
   const doctorId = req.user._id;
 
@@ -148,44 +109,14 @@ const addMedicalRecord = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, createdRecord, "Medical record added successfully"));
 });
 
-// const requestLabTest = asyncHandler(async (req, res) => {
-//   const { patientId } = req.params;
-//   const { testId, sample_collected_date, report_date } = req.body;
-
-//   if (!mongoose.Types.ObjectId.isValid(patientId)) {
-//     throw new ApiError(400, "Invalid patient ID");
-//   }
-
-//   if (!testId || !sample_collected_date || !report_date) {
-//     throw new ApiError(400, "Test ID, sample collection date, and report date are required");
-//   }
-
-//   const doctorId = req.user._id;
-
-//   const labRequest = await LabRequest.create({
-//     patient_id: patientId,
-//     doctor_id: doctorId,
-//     test_id: testId,
-//     status: "pending",
-//     sample_collected_date,
-//     report_date,
-//   });
-
-//   const createdRequest = await LabRequest.findById(labRequest._id)
-//     .populate("patient_id", "fullname")
-//     .populate("doctor_id", "fullname")
-//     .populate("test_id", "test_name test_cost");
-
-//   return res
-//     .status(201)
-//     .json(new ApiResponse(201, createdRequest, "Lab test requested successfully"));
-// });
-
 const seeAppointment = asyncHandler(async (req, res) => {
   const doctorId = req.user._id;
   const { status, date } = req.query;
 
-  let query = { doctor_id: doctorId };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let query = { doctor_id: doctorId, date: { $gte: today } };
 
   if (status) {
     query.status = status;
@@ -205,50 +136,9 @@ const seeAppointment = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, appointments, "Appointments fetched successfully"));
 });
 
-// const approveDischarge = asyncHandler(async (req, res) => {
-//   const { admissionId } = req.params;
-//   const { dischargeSummary } = req.body;
-
-//   if (!mongoose.Types.ObjectId.isValid(admissionId)) {
-//     throw new ApiError(400, "Invalid admission ID");
-//   }
-
-//   const admission = await Admission.findById(admissionId);
-//   if (!admission) {
-//     throw new ApiError(404, "Admission not found");
-//   }
-
-//   if (admission.status === "discharged") {
-//     throw new ApiError(400, "Patient already discharged");
-//   }
-
-//   admission.status = "discharged";
-//   admission.discharge_date = new Date();
-  
-//   if (dischargeSummary) {
-//     admission.discharge_summary = dischargeSummary;
-//   }
-
-//   await admission.save();
-
-//   const medicalHistory = await MedicalHistory.findOne({ patient_id: admission.patient_id });
-//   if (medicalHistory) {
-//     medicalHistory.admission_history.push(admission._id);
-//     await medicalHistory.save();
-//   }
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, admission, "Patient discharge approved successfully"));
-// });
-
 export {
     patientProfile,
     patientMedicalHistory,
-    // labAllReport,
-    // LabReport,
     addMedicalRecord,
-    // requestLabTest,
     seeAppointment,
-    // approveDischarge
 }

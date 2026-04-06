@@ -33,6 +33,16 @@ const staffSchema = mongoose.Schema(
       enum: ['admin','doctor','nurse','receptionist'],
       required: true,
     },
+    doctorFields: {
+      type: [String],
+      validate: {
+        validator: function(v) {
+          return v.every(field => /^\S+$/.test(field));
+        },
+        message: 'Each doctor field must be a single word (no spaces)'
+      },
+      default: undefined
+    },
     refreshToken: {
       type: String,
     },

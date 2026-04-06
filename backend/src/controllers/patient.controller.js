@@ -2,7 +2,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import bcrypt from 'bcrypt'
-import crypto from 'crypto'
 import mongoose from "mongoose";
 import jwt from 'jsonwebtoken'
 import { Appointment } from "../models/appointment.model.js";
@@ -11,7 +10,6 @@ import { MedicalHistory } from "../models/medical_history.model.js";
 import { Bill } from "../models/bill.model.js";
 import { Payment } from "../models/payment.model.js";
 import { Patient } from "../models/patient.model.js";
-
 
 
 const registerPatient = asyncHandler(async (req, res) => {
@@ -32,7 +30,7 @@ const registerPatient = asyncHandler(async (req, res) => {
   const phone = req.body.phone || null;
 
   const hashedPass = await bcrypt.hash(password, 5);
-  const emailVerifyToken = crypto.randomBytes(32).toString("hex");
+  const emailVerifyToken = Math.floor(10000 + Math.random() * 90000);
   const emailVerificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
   const user = await Patient.create({
@@ -53,6 +51,7 @@ const registerPatient = asyncHandler(async (req, res) => {
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering user");
   }
+
 
   return res
     .status(201)
@@ -289,7 +288,7 @@ const searchPatientByUsername = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Username is required");
   }
 
-  const patient = await Patient.findOne({ username }).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
+  const patient = await Patient.findOne({ username: username }).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
 
   if (!patient) {
     throw new ApiError(404, "Patient not found");

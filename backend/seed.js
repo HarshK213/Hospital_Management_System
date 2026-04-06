@@ -12,16 +12,16 @@ import DBConnect from "./src/db/db.js";
 dotenv.config();
 
 const indianDoctors = [
-  { fullname: "Dr. Rajesh Kumar", specialization: "Cardiologist", user_id: "DOC-RAJ-001", email: "rajesh.kumar@hospital.com", phone: "9876543201", about: "Senior Cardiologist with 15 years experience in treating heart conditions" },
-  { fullname: "Dr. Priya Sharma", specialization: "Pediatrician", user_id: "DOC-PRI-002", email: "priya.sharma@hospital.com", phone: "9876543202", about: "Expert Pediatrician specializing in child healthcare" },
-  { fullname: "Dr. Amit Patel", specialization: "General Physician", user_id: "DOC-AMI-003", email: "amit.patel@hospital.com", phone: "9876543203", about: "General Physician for common ailments and preventive care" },
-  { fullname: "Dr. Sunita Devi", specialization: "Gynecologist", user_id: "DOC-SUN-004", email: "sunita.devi@hospital.com", phone: "9876543204", about: "Experienced Gynecologist for women's health" },
-  { fullname: "Dr. Vikram Singh", specialization: "Orthopedic", user_id: "DOC-VIK-005", email: "vikram.singh@hospital.com", phone: "9876543205", about: "Orthopedic surgeon specializing in bone and joint problems" },
-  { fullname: "Dr. Anjali Gupta", specialization: "Dermatologist", user_id: "DOC-ANJ-006", email: "anjali.gupta@hospital.com", phone: "9876543206", about: "Dermatologist for skin, hair, and nail conditions" },
-  { fullname: "Dr. Mohammad Khan", specialization: "Neurologist", user_id: "DOC-MOH-007", email: "mohammad.khan@hospital.com", phone: "9876543207", about: "Neurologist expert in brain and nervous system disorders" },
-  { fullname: "Dr. Lakshmi Narayanan", specialization: "Gastroenterologist", user_id: "DOC-LAK-008", email: "lakshmi.narayanan@hospital.com", phone: "9876543208", about: "Gastroenterologist for digestive system disorders" },
-  { fullname: "Dr. Kavita Iyer", specialization: "Ophthalmologist", user_id: "DOC-KAV-009", email: "kavita.iyer@hospital.com", phone: "9876543209", about: "Ophthalmologist expert in eye care and surgeries" },
-  { fullname: "Dr. Suresh Reddy", specialization: "Pulmonologist", user_id: "DOC-SUR-010", email: "suresh.reddy@hospital.com", phone: "9876543210", about: "Pulmonologist for respiratory and lung diseases" },
+  { fullname: "Dr. Rajesh Kumar", specialization: "Cardiologist", user_id: "DOC-RAJ-001", email: "rajesh.kumar@hospital.com", phone: "9876543201", about: "Senior Cardiologist with 15 years experience in treating heart conditions", doctorFields: ["Cardiology", "HeartSurgery", "Interventional"] },
+  { fullname: "Dr. Priya Sharma", specialization: "Pediatrician", user_id: "DOC-PRI-002", email: "priya.sharma@hospital.com", phone: "9876543202", about: "Expert Pediatrician specializing in child healthcare", doctorFields: ["Pediatrics", "Neonatology", "Immunization"] },
+  { fullname: "Dr. Amit Patel", specialization: "General Physician", user_id: "DOC-AMI-003", email: "amit.patel@hospital.com", phone: "9876543203", about: "General Physician for common ailments and preventive care", doctorFields: ["GeneralMedicine", "PreventiveCare", "Emergency"] },
+  { fullname: "Dr. Sunita Devi", specialization: "Gynecologist", user_id: "DOC-SUN-004", email: "sunita.devi@hospital.com", phone: "9876543204", about: "Experienced Gynecologist for women's health", doctorFields: ["Gynecology", "Obstetrics", "Fertility"] },
+  { fullname: "Dr. Vikram Singh", specialization: "Orthopedic", user_id: "DOC-VIK-005", email: "vikram.singh@hospital.com", phone: "9876543205", about: "Orthopedic surgeon specializing in bone and joint problems", doctorFields: ["Orthopedics", "JointReplacement", "SportsMedicine"] },
+  { fullname: "Dr. Anjali Gupta", specialization: "Dermatologist", user_id: "DOC-ANJ-006", email: "anjali.gupta@hospital.com", phone: "9876543206", about: "Dermatologist for skin, hair, and nail conditions", doctorFields: ["Dermatology", "Cosmetic", "HairCare"] },
+  { fullname: "Dr. Mohammad Khan", specialization: "Neurologist", user_id: "DOC-MOH-007", email: "mohammad.khan@hospital.com", phone: "9876543207", about: "Neurologist expert in brain and nervous system disorders", doctorFields: ["Neurology", "Neurosurgery", "Epilepsy"] },
+  { fullname: "Dr. Lakshmi Narayanan", specialization: "Gastroenterologist", user_id: "DOC-LAK-008", email: "lakshmi.narayanan@hospital.com", phone: "9876543208", about: "Gastroenterologist for digestive system disorders", doctorFields: ["Gastroenterology", "Hepatology", "Endoscopy"] },
+  { fullname: "Dr. Kavita Iyer", specialization: "Ophthalmologist", user_id: "DOC-KAV-009", email: "kavita.iyer@hospital.com", phone: "9876543209", about: "Ophthalmologist expert in eye care and surgeries", doctorFields: ["Ophthalmology", "Retina", "Cataract"] },
+  { fullname: "Dr. Suresh Reddy", specialization: "Pulmonologist", user_id: "DOC-SUR-010", email: "suresh.reddy@hospital.com", phone: "9876543210", about: "Pulmonologist for respiratory and lung diseases", doctorFields: ["Pulmonology", "CriticalCare", "SleepMedicine"] },
 ];
 
 const indianPatients = [
@@ -71,12 +71,17 @@ async function seedData() {
 
     for (const doc of indianDoctors) {
       const staff = await Staff.create({
-        ...doc,
+        fullname: doc.fullname,
+        user_id: doc.user_id,
+        email: doc.email,
+        phone: doc.phone,
+        about: doc.about,
         password: hashedPassword,
         role: "doctor",
+        doctorFields: doc.doctorFields,
       });
       doctors.push(staff);
-      console.log(`Created doctor: ${doc.fullname}`);
+      console.log(`Created doctor: ${doc.fullname} - Fields: ${doc.doctorFields.join(", ")}`);
     }
 
     const nurses = ["Nurse Radhika", "Nurse Kavya", "Nurse Bhavana", "Nurse Swapna"];
@@ -139,6 +144,26 @@ async function seedData() {
     }
     console.log("Created 10 beds");
 
+    for (const doctor of doctors) {
+      for (let j = 0; j < 5; j++) {
+        const appointmentDate = new Date();
+        appointmentDate.setDate(appointmentDate.getDate() + Math.floor(Math.random() * 21) + 1);
+        
+        const availableTimes = ["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"];
+        
+        await Appointment.create({
+          patient_id: patients[Math.floor(Math.random() * patients.length)]._id,
+          doctor_id: doctor._id,
+          date: appointmentDate,
+          time: availableTimes[Math.floor(Math.random() * availableTimes.length)],
+          reason: commonDiseases[Math.floor(Math.random() * commonDiseases.length)].name,
+          status: Math.random() > 0.3 ? "confirmed" : "pending",
+        });
+        console.log(`Created appointment for patient with ${doctor.fullname}`);
+      }
+    }
+
+    // Create 10 more single appointments (original logic)
     for (let i = 0; i < 10; i++) {
       const appointmentDate = new Date();
       appointmentDate.setDate(appointmentDate.getDate() + Math.floor(Math.random() * 14));

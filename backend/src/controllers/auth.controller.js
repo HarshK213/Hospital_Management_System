@@ -41,7 +41,7 @@ const StaffLogin = asyncHandler(async(req ,res ) => {
 
     const isPasswordCorrect = await staff.isPasswordCorrect(password);
 
-    if(!isPasswordCorrect)throw new ApiError(400, "Password Incorrect");
+    if(isPasswordCorrect)throw new ApiError(400, "Password Incorrect");
 
     const {accessToken, refreshToken } = await generateStaffAccessandRefreshTokens(staff._id);
 

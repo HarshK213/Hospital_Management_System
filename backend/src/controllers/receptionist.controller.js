@@ -102,74 +102,48 @@ const updateAppointment = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedAppointment, "Appointment updated successfully"));
 });
 
-// const admitEntry = asyncHandler(async (req, res) => {
-//   const { patientId, bedId } = req.body;
-
-//   if (!patientId || !bedId) {
-//     throw new ApiError(400, "Patient ID and Bed ID are required");
-//   }
-
-//   if (!mongoose.Types.ObjectId.isValid(patientId) || !mongoose.Types.ObjectId.isValid(bedId)) {
-//     throw new ApiError(400, "Invalid patient or bed ID");
-//   }
-
-//   const admission = await Admission.create({
-//     patient_id: patientId,
-//     bed_id: bedId,
-//     admission_date: new Date(),
-//     status: "admitted",
-//   });
-
-//   const createdAdmission = await Admission.findById(admission._id)
-//     .populate("patient_id", "fullname email phone")
-//     .populate("bed_id", "bed_number ward");
-
-//   return res
-//     .status(201)
-//     .json(new ApiResponse(201, createdAdmission, "Patient admitted successfully"));
-// });
-
 const viewPatientProfile = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(patientId)) {
-    throw new ApiError(400, "Invalid patient ID");
-  }
-
-  const patient = await Patient.findById(patientId).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
+  const patient = await Patient.findOne({username: patientId}).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry");
 
   if (!patient) {
     throw new ApiError(404, "Patient not found");
   }
 
-  const admissions = await Admission.find({ patient_id: patientId })
-    .populate("bed_id", "bed_number ward")
-    .sort({ createdAt: -1 });
-
   return res
     .status(200)
-    .json(new ApiResponse(200, { patient, admissions }, "Patient profile fetched successfully"));
+    .json(new ApiResponse(200, patient, "Patient profile fetched successfully"));
 });
 
 const generateOPDBill = asyncHandler(async (req, res) => {
   const { patientId, appointmentId, amount, type } = req.body;
 
-  if (!patientId || !appointmentId || !amount || !type) {
+  if (!patientId || !amount || !type) {
     throw new ApiError(400, "Patient ID, appointment ID, amount, and type are required");
   }
 
-  if (!mongoose.Types.ObjectId.isValid(patientId) || !mongoose.Types.ObjectId.isValid(appointmentId)) {
-    throw new ApiError(400, "Invalid patient or appointment ID");
+  if(appointmentId){
+    if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+      throw new ApiError(400, "Invalid appointment ID");
+    }
   }
 
+  const patient = await Patient.findById(patientId);
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  console.log(patientId);
+  console.log(patient._id);
+  
   const bill = await Bill.create({
-    patient_id: patientId,
-    appointment_id: appointmentId,
-    admission_id: null,
+    patient_id: patient._id,
+    appointment_id: appointmentId || null,
     amount,
     type,
     date: new Date(),
-    status: "pending",
+    status: "paid",
   });
 
   const createdBill = await Bill.findById(bill._id)
