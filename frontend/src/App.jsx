@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import ChatBot from "./components/ChatBot";
 import { useAuth } from "./context/AuthContext";
 import Home from "./pages/home.jsx";
 import Login from "./pages/auth/Login.jsx";
@@ -26,7 +25,15 @@ import AddPatient from "./pages/receptionist/AddPatient.jsx";
 import GenerateBill from "./pages/receptionist/GenerateBill.jsx";
 
 const ProtectedLayout = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="material-symbols-outlined text-4xl animate-spin text-[#007a8a]">progress_activity</span>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -76,7 +83,6 @@ function App() {
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Route>
       </Routes>
-      <ChatBot />
     </BrowserRouter>
   );
 }

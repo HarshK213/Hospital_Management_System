@@ -110,19 +110,14 @@ const AddMedicalRecord = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Notes <span className="text-red-500">*</span>
+              Notes
             </label>
             <textarea
-              {...register('notes', { required: 'Notes are required' })}
+              {...register('notes')}
               rows={4}
-              className={`w-full px-4 py-3 bg-gray-50 border rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#007a8a] focus:border-transparent transition-all text-sm resize-none ${
-                errors.notes ? 'border-red-300' : 'border-gray-200'
-              }`}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#007a8a] focus:border-transparent transition-all text-sm resize-none"
               placeholder="Additional notes and observations..."
             />
-            {errors.notes && (
-              <p className="mt-1 text-xs text-red-500">{errors.notes.message}</p>
-            )}
           </div>
 
           <div className="pt-4">

@@ -26,7 +26,9 @@ const PatientDetails = () => {
       const response = await doctorService.getPatientDetails(patientId.trim());
       const data = response.data.data;
       setPatient(data.patient || data);
-      setMedicalHistory(data.medicalHistory || null);
+      const medicalHistory = await doctorService.getMedicalHistory(patientId.trim());
+      setMedicalHistory(medicalHistory.data.data || null);
+      console.log(medicalHistory)
     } catch (err) {
       setError(err.message || 'Patient not found');
     } finally {
@@ -135,9 +137,9 @@ const PatientDetails = () => {
               </div>
 
               <div className="p-6">
-                {medicalHistory && medicalHistory.medical_record && medicalHistory.medical_record.length > 0 ? (
+                {medicalHistory && medicalHistory.medical_records && medicalHistory.medical_records.length > 0 ? (
                   <div className="space-y-4">
-                    {medicalHistory.medical_record.map((record, index) => (
+                    {medicalHistory.medical_records.map((record, index) => (
                       <div key={record._id || index} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
                         <div className="flex justify-between items-start mb-3">
                           <div>

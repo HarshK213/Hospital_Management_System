@@ -21,7 +21,7 @@ export class DoctorService {
 
   async addMedicalRecord(patientId, recordData) {
     try {
-      const response = await this.api.post(`/doctor/patient/${patientId}/medical-record`, recordData);
+      const response = await this.api.post(`/doctor/patient/medical-record/${patientId}`, recordData);
       return response;
     } catch (error) {
       throw this.handleError(error);
@@ -30,7 +30,7 @@ export class DoctorService {
 
   async getPatientDetails(patientId) {
     try {
-      const response = await this.api.get(`/patient/${patientId}`);
+      const response = await this.api.get(`/doctor/patient/${patientId}`);
       return response;
     } catch (error) {
       throw this.handleError(error);
@@ -40,6 +40,15 @@ export class DoctorService {
   async getAppointments(params = {}) {
     try {
       const response = await this.api.get("/doctor/appointments", { params });
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getMedicalHistory(patientId){
+    try {
+      const response = await this.api.get(`/doctor/patient/medical-history/${patientId}`);
       return response;
     } catch (error) {
       throw this.handleError(error);

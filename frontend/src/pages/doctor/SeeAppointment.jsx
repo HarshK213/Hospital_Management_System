@@ -10,14 +10,15 @@ const SeeAppointment = () => {
 
   useEffect(() => {
     fetchAppointments();
-  }, [selectedDate]);
+  }, []);
 
   const fetchAppointments = async () => {
     setLoading(true);
     setError('');
     try {
-      const response = await doctorService.getAppointments({ date: selectedDate });
+      const response = await doctorService.getAppointments({});
       setAppointments(response.data.data || []);
+      console.log(response);
     } catch (err) {
       setError(err.message || 'Failed to fetch appointments');
     } finally {
