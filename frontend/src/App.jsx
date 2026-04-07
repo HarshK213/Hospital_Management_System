@@ -6,6 +6,7 @@ import { useAuth } from "./context/AuthContext";
 import Home from "./pages/home.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Signup from "./pages/auth/Signup.jsx";
+import VerifyOtp from "./pages/auth/VerifyOtp.jsx";
 
 import AddStaff from "./pages/admin/AddStaff.jsx";
 import AllStaff from "./pages/admin/AllStaff.jsx";
@@ -60,6 +61,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
 
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />

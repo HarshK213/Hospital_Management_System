@@ -97,8 +97,11 @@ const loginPatient = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User does not exist");
   }
 
+  if(!user.isVerified){
+    throw new ApiError(401, "User is not verified");
+  }
+
   const isPasswordCorrect = await user.isPasswordCorrect(password);
-  // console.log(isPasswordCorrect)
 
   if (isPasswordCorrect) {
     throw new ApiError(400, "Invalid user credentials");
@@ -126,6 +129,54 @@ const loginPatient = asyncHandler(async (req, res) => {
           refreshToken
         },
         "User Logged in Successfully"
+      )
+    );
+});
+
+const loginWithOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    throw new ApiError(400, "Email and OTP are required");
+  }
+
+  const user = await Patient.findOne({ 
+    email,
+    emailVerifyToken: otp,
+    emailVerificationTokenExpiry: { $gt: new Date() }
+  });
+
+  if (!user) {
+    throw new ApiError(400, "Invalid or expired OTP");
+  }
+
+  user.isVerified = true;
+  user.emailVerifyToken = null;
+  user.emailVerificationTokenExpiry = null;
+  await user.save();
+
+  const { accessToken, refreshToken } = await generatePatientAccessandRefreshTokens(user._id);
+
+  const loggedInUser = await Patient.findById(user._id).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: loggedInUser,
+          accessToken,
+          refreshToken
+        },
+        "Login successful"
       )
     );
 });
@@ -199,6 +250,7 @@ const logout = asyncHandler(async (req, res) => {
 export {
     StaffLogin,
     loginPatient,
+    loginWithOTP,
     getCurrentUser,
     logout
 }

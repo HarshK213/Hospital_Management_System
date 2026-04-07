@@ -7,6 +7,7 @@ import { Staff } from "../models/staff.model.js";
 import { Patient } from "../models/patient.model.js";
 import { MedicalHistory } from "../models/medical_history.model.js";
 import { MedicalRecord } from "../models/medical_record.model.js";
+import { sendVerificationEmail } from "../utils/sendVerificationEmail.js";
 
 function generateUserId(name, role) {
   const cleanName = name.split(" ")[0].toUpperCase();
@@ -83,6 +84,16 @@ const getStaffByUserId = asyncHandler(async (req, res) => {
   if (!staff) {
     throw new ApiError(404, "Staff not found");
   }
+
+  const emailResponse = await sendVerificationEmail(
+      email,
+      username,
+      verifyCode,
+    );
+
+    if (!emailResponse.success) {
+      throw new ApiError(500, emailResponse.message);
+    }
 
   return res
     .status(200)

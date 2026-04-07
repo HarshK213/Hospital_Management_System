@@ -2,6 +2,7 @@ import { Router } from "express";
 import { 
   registerPatient, 
   verifyUser, 
+  resendVerificationEmail,
   // loginPatient, 
   bookAppointment, 
   listAllDoctor,
@@ -20,7 +21,8 @@ import { verifyJWT } from "../middleware/auth.midlleware.js";
 const router = Router();
 
 router.route("/register").post(registerPatient);
-router.route("/verify").get(verifyUser);
+router.route("/verify").post(verifyUser);
+router.route("/resend-verify").post(resendVerificationEmail);
 // router.route("/login").post(loginPatient);
 router.route("/doctors").get(listAllDoctor);
 router.route("/search").get(verifyJWT, searchPatientByUsername);

@@ -43,6 +43,16 @@ const staffSchema = mongoose.Schema(
       },
       default: undefined
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerifyToken: {
+      type: String,
+    },
+    emailVerificationTokenExpiry: {
+      type: Date,
+    },
     refreshToken: {
       type: String,
     },

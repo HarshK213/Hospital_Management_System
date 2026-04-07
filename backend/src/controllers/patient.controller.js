@@ -10,6 +10,7 @@ import { MedicalHistory } from "../models/medical_history.model.js";
 import { Bill } from "../models/bill.model.js";
 import { Payment } from "../models/payment.model.js";
 import { Patient } from "../models/patient.model.js";
+import { sendVerificationEmail } from "../utils/sendVerificationEmail.js";
 
 
 const registerPatient = asyncHandler(async (req, res) => {
@@ -22,7 +23,30 @@ const registerPatient = asyncHandler(async (req, res) => {
   }
 
   const existingUser = await Patient.findOne({ email });
+  
   if (existingUser) {
+    if (!existingUser.isVerified) {
+      const emailVerifyToken = Math.floor(10000 + Math.random() * 90000);
+      const emailVerificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+      
+      existingUser.emailVerifyToken = emailVerifyToken;
+      existingUser.emailVerificationTokenExpiry = emailVerificationTokenExpiry;
+      await existingUser.save();
+
+      const emailResponse = await sendVerificationEmail(
+        email,
+        existingUser.username,
+        emailVerifyToken,
+      );
+
+      if (!emailResponse.success) {
+        throw new ApiError(500, emailResponse.message);
+      }
+
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Verification email sent again. Please verify your email."));
+    }
     throw new ApiError(400, "User with this email already exists");
   }
 
@@ -33,18 +57,24 @@ const registerPatient = asyncHandler(async (req, res) => {
   const emailVerifyToken = Math.floor(10000 + Math.random() * 90000);
   const emailVerificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
-  const user = await Patient.create({
-    username: username || email.split('@')[0],
-    fullname,
-    email,
-    phone: phone || null,
-    password: hashedPass,
-    isVerified: false,
-    emailVerifyToken,
-    emailVerificationTokenExpiry,
-    providers: "credentials",
-    providerIds: null
-  });
+  let user;
+  try {
+    user = await Patient.create({
+      username: username || email.split('@')[0],
+      fullname,
+      email,
+      phone: phone || null,
+      password: hashedPass,
+      isVerified: false,
+      emailVerifyToken,
+      emailVerificationTokenExpiry,
+      providers: "credentials",
+      providerIds: null
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw new ApiError(500, "Something went wrong while registering user");
+  }
 
   const createdUser = await Patient.findById(user._id).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
 
@@ -52,35 +82,61 @@ const registerPatient = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering user");
   }
 
+  try {
+    const emailResponse = await sendVerificationEmail(
+      email,
+      username,
+      emailVerifyToken,
+    );
+
+    if (!emailResponse.success) {
+      console.error("Failed to send verification email:", emailResponse.message);
+    }
+  } catch (emailError) {
+    console.error("Error sending verification email:", emailError);
+  }
 
   return res
     .status(201)
-    .json(new ApiResponse(201, createdUser, "User Registered Successfully"));
+    .json(new ApiResponse(201, createdUser, "User Registered Successfully. Please verify your email."));
 });
 
 const verifyUser = asyncHandler(async (req, res) => {
-  const { token } = req.query;
-
+  const token = req.body.otp;
+  
+  console.log("Token from request:", token);
+  
+  if (!token) {
+    throw new ApiError(400, "Token is required");
+  }
+  
   const user = await Patient.findOne({
     emailVerifyToken: token,
     emailVerificationTokenExpiry: { $gt: new Date() },
   });
+
+  console.log(user);
 
   if (!user) {
     throw new ApiError(400, "Invalid or Expired token");
   }
 
   user.isVerified = true;
-  // user.emailVerifyToken = null;
-  // user.emailVerificationTokenExpiry = null;
-
   await user.save();
 
   const updatedUser = await Patient.findById(user._id).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry -providerIds");
 
   return res
     .status(200)
-    .json(new ApiResponse(200, updatedUser, "Email Verified Successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: updatedUser,
+        },
+        "Email Verified Successfully"
+      )
+    );
 });
 
 
@@ -196,43 +252,6 @@ const viewPaymentHistory = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, payments, "Payment history fetched successfully"));
 });
 
-// const viewReport = asyncHandler(async (req, res) => {
-//   const patientId = req.user._id;
-
-//   const reports = await LabReport.find({ patient_id: patientId })
-//     .populate({
-//       path: "order_id",
-//       populate: [
-//         { path: "test_id", select: "test_name" },
-//         { path: "doctor_id", select: "fullname" }
-//       ]
-//     })
-//     .sort({ createdAt: -1 });
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
-// });
-
-// const downloadReport = asyncHandler(async (req, res) => {
-//   const { reportId } = req.params;
-//   const patientId = req.user._id;
-
-//   if (!mongoose.Types.ObjectId.isValid(reportId)) {
-//     throw new ApiError(400, "Invalid report ID");
-//   }
-
-//   const report = await LabReport.findOne({ _id: reportId, patient_id: patientId });
-
-//   if (!report) {
-//     throw new ApiError(404, "Report not found");
-//   }
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, report, "Report data retrieved successfully"));
-// });
-
 const updateDetails = asyncHandler(async (req, res) => {
   const { fullname, phone } = req.body;
   const patientId = req.user._id;
@@ -299,9 +318,49 @@ const searchPatientByUsername = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, patient, "Patient found successfully"));
 });
 
+const resendVerificationEmail = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  const patient = await Patient.findOne({ email });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (patient.isVerified) {
+    throw new ApiError(400, "Email is already verified");
+  }
+
+  const emailVerifyToken = Math.floor(10000 + Math.random() * 90000);
+  const emailVerificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+
+  patient.emailVerifyToken = emailVerifyToken;
+  patient.emailVerificationTokenExpiry = emailVerificationTokenExpiry;
+  await patient.save();
+
+  const emailResponse = await sendVerificationEmail(
+    email,
+    patient.username,
+    emailVerifyToken,
+  );
+
+  if (!emailResponse.success) {
+    throw new ApiError(500, emailResponse.message);
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Verification email sent successfully"));
+});
+
 export {
   registerPatient,
   verifyUser,
+  resendVerificationEmail,
   // loginPatient,
   bookAppointment,
   listAllDoctor,

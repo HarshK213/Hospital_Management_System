@@ -21,7 +21,29 @@ export class PatientService {
 
   async register(registrationData) {
     try {
-      const response = await this.api.post("/patient/register", registrationData);
+      const response = await this.api.post(
+        "/patient/register",
+        registrationData,
+      );
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async verifyOtp(otpData) {
+    try {
+      console.log(otpData);
+      const response = await this.api.post("/patient/verify", otpData);
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async resendOtp(emailData) {
+    try {
+      const response = await this.api.post("/patient/resend-otp", emailData);
       return response;
     } catch (error) {
       throw this.handleError(error);
@@ -48,7 +70,10 @@ export class PatientService {
 
   async bookAppointment(appointmentData) {
     try {
-      const response = await this.api.post("/patient/appointment", appointmentData);
+      const response = await this.api.post(
+        "/patient/appointment",
+        appointmentData,
+      );
       return response;
     } catch (error) {
       throw this.handleError(error);
