@@ -13,10 +13,6 @@ import { Appointment } from "../models/appointment.model.js";
 const patientProfile = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
 
-  // if (!mongoose.Types.ObjectId.isValid(patientId)) {
-  //   throw new ApiError(400, "Invalid patient ID");
-  // }
-
   const patient = await Patient.findOne({username: patientId}).select("-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry");
 
   if (!patient) {

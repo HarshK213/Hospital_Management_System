@@ -48,7 +48,18 @@ export class AdminService {
 
   async getPatientMedicalHistory(patientId) {
     try {
-      const response = await this.api.get(`/admin/medical-history/${patientId}`);
+      const response = await this.api.get(
+        `/admin/medical-history/${patientId}`,
+      );
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getAllStaff() {
+    try {
+      const response = await this.api.get(`/admin/staff`);
       return response;
     } catch (error) {
       throw this.handleError(error);

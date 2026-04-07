@@ -5,8 +5,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { Staff } from "../models/staff.model.js";
 import { Patient } from "../models/patient.model.js";
-// import { LabReport } from "../models/lab_report.model.js";
 import { MedicalHistory } from "../models/medical_history.model.js";
+import { MedicalRecord } from "../models/medical_record.model.js";
 
 function generateUserId(name, role) {
   const cleanName = name.split(" ")[0].toUpperCase();
@@ -24,12 +24,12 @@ const addStaff = asyncHandler(async (req, res) => {
   }
 
   let user_id = generateUserId(fullname, role);
-  
+
   let existingStaff = await Staff.findOne({ user_id });
-  
+
   const formattedRole = role.toLowerCase();
 
-  while(existingStaff){
+  while (existingStaff) {
     user_id = generateUserId(fullname, role);
     existingStaff = await Staff.findOne({ user_id });
   }
@@ -43,12 +43,14 @@ const addStaff = asyncHandler(async (req, res) => {
     user_id,
     email,
     phone,
-    password : hashedPassword,
+    password: hashedPassword,
     about,
     role: formattedRole,
   });
 
-  const createdStaff = await Staff.findById(staff._id).select("-password -refreshToken");
+  const createdStaff = await Staff.findById(staff._id).select(
+    "-password -refreshToken"
+  );
 
   return res
     .status(201)
@@ -75,7 +77,9 @@ const staffStatus = asyncHandler(async (req, res) => {
 const getStaffByUserId = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
-  const staff = await Staff.findOne({ user_id: userId }).select("-password -refreshToken");
+  const staff = await Staff.findOne({ user_id: userId }).select(
+    "-password -refreshToken"
+  );
   if (!staff) {
     throw new ApiError(404, "Staff not found");
   }
@@ -102,31 +106,20 @@ const deleteStaff = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, null, "Staff deleted successfully"));
 });
 
-// const viewReport = asyncHandler(async (req, res) => {
-//   const { patientId } = req.params;
-
-//   if (!mongoose.Types.ObjectId.isValid(patientId)) {
-//     throw new ApiError(400, "Invalid patient ID");
-//   }
-
-//   const reports = await LabReport.find({ patient_id: patientId })
-//     .populate("order_id")
-//     .sort({ createdAt: -1 });
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, reports, "Lab reports fetched successfully"));
-// });
-
 const viewMedicalHistory = asyncHandler(async (req, res) => {
-  const { patientEmail } = req.params;
+  const { patientId } = req.params;
 
-  const patient = await Patient.findOne({ email: patientEmail });
+  const patient = await Patient.findOne({ username: patientId }).select(
+    "-password -refreshToken -emailVerifyToken -emailVerificationTokenExpiry"
+  );
+
   if (!patient) {
     throw new ApiError(404, "Patient not found");
   }
 
-  const medicalHistory = await MedicalHistory.findOne({ patient_id: patient._id })
+  const medicalHistory = await MedicalHistory.findOne({
+    patient_id: patient._id,
+  })
     .populate("patient_id", "fullname email")
     .sort({ createdAt: -1 });
 
@@ -136,16 +129,37 @@ const viewMedicalHistory = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, [], "No medical history found"));
   }
 
+  const recordIds = medicalHistory.medical_record.map(
+    (id) => new mongoose.Types.ObjectId(id)
+  );
+
+  const medicalRecords = await MedicalRecord.find({ _id: { $in: recordIds } })
+    .populate("doctor_id", "fullname")
+    .sort({ visit_date: -1 });
+
   return res
     .status(200)
-    .json(new ApiResponse(200, medicalHistory, "Medical history fetched successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { medical_records: medicalRecords },
+        "Medical history fetched successfully"
+      )
+    );
+});
+
+const allStaff = asyncHandler(async (req, res) => {
+  const staff = await Staff.find().select("-password -refreshToken");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, staff, "Staff fetched successfully"));
 });
 
 export {
-    addStaff,
-    staffStatus,
-    getStaffByUserId,
-    deleteStaff,
-    viewMedicalHistory,
-    // viewReport
-}
+  addStaff,
+  staffStatus,
+  getStaffByUserId,
+  deleteStaff,
+  viewMedicalHistory,
+  allStaff,
+};

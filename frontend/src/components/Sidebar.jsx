@@ -26,6 +26,7 @@ const Sidebar = () => {
   const menuItems = {
     admin: [
       { icon: <UserPlus size={18} />, label: "Add Staff", path: "/admin/add-staff" },
+      { icon: <Users size={18} />, label: "All Staff", path: "/admin/all-staff" },
       { icon: <UserCheck size={18} />, label: "Staff Status", path: "/admin/staff-status" },
       { icon: <History size={18} />, label: "Medical History", path: "/admin/view-report" },
     ],

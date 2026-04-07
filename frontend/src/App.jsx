@@ -8,6 +8,7 @@ import Login from "./pages/auth/Login.jsx";
 import Signup from "./pages/auth/Signup.jsx";
 
 import AddStaff from "./pages/admin/AddStaff.jsx";
+import AllStaff from "./pages/admin/AllStaff.jsx";
 import StaffStatus from "./pages/admin/StaffStatus.jsx";
 import ViewReportMedicalHistory from "./pages/admin/ViewReportMedicalHistory.jsx";
 
@@ -64,6 +65,7 @@ function App() {
           <Route path="/home" element={<Home />} />
 
           <Route path="/admin/add-staff" element={<AddStaff />} />
+          <Route path="/admin/all-staff" element={<AllStaff />} />
           <Route path="/admin/staff-status" element={<StaffStatus />} />
           <Route path="/admin/view-report" element={<ViewReportMedicalHistory />} />
 
