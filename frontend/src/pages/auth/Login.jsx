@@ -77,7 +77,7 @@ const Login = () => {
             
             const role = (userData.role || loginType).toLowerCase();
             const routes = {
-                admin: '/home',
+                admin: '/admin/all-staff',
                 doctor: '/doctor/see-appointment',
                 receptionist: '/receptionist/add-patient',
                 patient: '/patient/book-appointment',

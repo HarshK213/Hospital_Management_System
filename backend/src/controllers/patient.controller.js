@@ -11,7 +11,7 @@ import { Bill } from "../models/bill.model.js";
 import { Payment } from "../models/payment.model.js";
 import { Patient } from "../models/patient.model.js";
 import { sendVerificationEmail } from "../utils/sendVerificationEmail.js";
-
+import {Staff } from "../models/staff.model.js"
 
 const registerPatient = asyncHandler(async (req, res) => {
   const { fullname, email, password } = req.body;
@@ -171,8 +171,6 @@ const bookAppointment = asyncHandler(async (req, res) => {
 });
 
 const listAllDoctor = asyncHandler(async (req, res) => {
-  const { Staff } = await import("../models/staff.model.js");
-  
   const doctors = await Staff.find({ role: "doctor" })
     .select("-password -refreshToken");
 

@@ -43,16 +43,6 @@ const staffSchema = mongoose.Schema(
       },
       default: undefined
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    emailVerifyToken: {
-      type: String,
-    },
-    emailVerificationTokenExpiry: {
-      type: Date,
-    },
     refreshToken: {
       type: String,
     },
@@ -73,7 +63,6 @@ staffSchema.methods.isPasswordCorrect = async function (password) {
 }
 
 staffSchema.methods.generateAccessToken = function(){
-      // console.log("Inside Access token")
       return jwt.sign(
            {
                 _id : this._id,
@@ -89,7 +78,6 @@ staffSchema.methods.generateAccessToken = function(){
 }
 
 staffSchema.methods.generateRefreshToken = function(){
-     // console.log("Inside refresh token")
      return jwt.sign(
           {
                id : this.id,

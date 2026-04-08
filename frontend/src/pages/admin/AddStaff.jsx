@@ -2,17 +2,58 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { adminService } from '../../services/adminService';
 
+const ADMIN_FIELDS = [
+  'Patient Management',
+  'Appointment Scheduling',
+  'Medical Records',
+  'Billing & Payments',
+  'Insurance Claims',
+  'Laboratory Management',
+  'Pharmacy Coordination',
+  'Staff Management',
+  'Report Generation',
+  'Inventory Management',
+  'Quality Assurance',
+  'Compliance & Regulations',
+  'Emergency Handling',
+  'Patient Relations',
+  'Data Analytics'
+];
+
 const AddStaff = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [selectedFields, setSelectedFields] = useState([]);
+  const [showFieldDropdown, setShowFieldDropdown] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+
+  const watchRole = watch('role');
+  const [fieldSearch, setFieldSearch] = useState('');
+
+  const toggleField = (field) => {
+    setSelectedFields(prev => 
+      prev.includes(field) 
+        ? prev.filter(f => f !== field)
+        : [...prev, field]
+    );
+  };
+
+  const filteredFields = ADMIN_FIELDS.filter(field => 
+    field.toLowerCase().includes(fieldSearch.toLowerCase())
+  );
 
   const onSubmit = async (data) => {
     setLoading(true);
     setError('');
     setSuccess('');
+
+    if (data.role === 'Admin' && selectedFields.length === 0) {
+      setError('Please select at least one field for admin');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await adminService.addStaff({
@@ -20,11 +61,14 @@ const AddStaff = () => {
         email: data.email,
         phone: data.phone,
         about: data.aboutMe,
-        role: data.role
+        role: data.role,
+        fields: data.role === 'Admin' ? selectedFields : []
       });
 
       setSuccess(`Staff added successfully! User ID: ${response.data.data.user_id}`);
       reset();
+      setSelectedFields([]);
+      setFieldSearch('');
     } catch (err) {
       setError(err.message || 'Failed to add staff');
     } finally {
@@ -158,6 +202,78 @@ const AddStaff = () => {
               <p className="mt-1 text-xs text-red-500">{errors.role.message}</p>
             )}
           </div>
+
+          {watchRole === 'Admin' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Select Fields <span className="text-red-500">*</span>
+              </label>
+              <p className="text-xs text-gray-500 mb-2">Select the areas this admin will manage</p>
+              
+              <div className="relative">
+                <div 
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer flex flex-wrap gap-2 min-h-[48px] items-center"
+                  onClick={() => setShowFieldDropdown(!showFieldDropdown)}
+                >
+                  {selectedFields.length === 0 ? (
+                    <span className="text-gray-400">Click to select fields...</span>
+                  ) : (
+                    selectedFields.map(field => (
+                      <span 
+                        key={field} 
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-[#007a8a]/10 text-[#007a8a] text-xs rounded-md"
+                      >
+                        {field}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleField(field); }}
+                          className="hover:text-red-500"
+                        >
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      </span>
+                    ))
+                  )}
+                  <span className="material-symbols-outlined text-gray-400 ml-auto">expand_more</span>
+                </div>
+
+                {showFieldDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                    <div className="p-2 border-b border-gray-100">
+                      <input
+                        type="text"
+                        placeholder="Search fields..."
+                        value={fieldSearch}
+                        onChange={(e) => setFieldSearch(e.target.value)}
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-[#007a8a] focus:border-transparent"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredFields.map(field => (
+                        <div
+                          key={field}
+                          className={`px-4 py-2.5 cursor-pointer hover:bg-gray-50 flex items-center justify-between ${
+                            selectedFields.includes(field) ? 'bg-[#007a8a]/5 text-[#007a8a]' : ''
+                          }`}
+                          onClick={() => toggleField(field)}
+                        >
+                          <span className="text-sm">{field}</span>
+                          {selectedFields.includes(field) && (
+                            <span className="material-symbols-outlined text-[#007a8a]">check</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {selectedFields.length === 0 && (
+                <p className="mt-1 text-xs text-red-500">Please select at least one field</p>
+              )}
+            </div>
+          )}
 
           <div className="pt-4">
             <button

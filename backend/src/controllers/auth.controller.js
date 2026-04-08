@@ -93,6 +93,7 @@ const loginPatient = asyncHandler(async (req, res) => {
 
   const user = await Patient.findOne({ email: email });
 
+  console.log(user);
   if (!user) {
     throw new ApiError(400, "User does not exist");
   }

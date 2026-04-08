@@ -35,9 +35,9 @@ const addStaff = asyncHandler(async (req, res) => {
     existingStaff = await Staff.findOne({ user_id });
   }
 
-  const password = "welcome@123";
+  const password = "password123";
 
-  const hashedPassword = await bcrypt.hash(password, 5);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const staff = await Staff.create({
     fullname,
@@ -85,17 +85,7 @@ const getStaffByUserId = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Staff not found");
   }
 
-  const emailResponse = await sendVerificationEmail(
-      email,
-      username,
-      verifyCode,
-    );
-
-    if (!emailResponse.success) {
-      throw new ApiError(500, emailResponse.message);
-    }
-
-  return res
+    return res
     .status(200)
     .json(new ApiResponse(200, staff, "Staff fetched successfully"));
 });
