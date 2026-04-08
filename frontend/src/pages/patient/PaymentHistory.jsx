@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { patientService } from '../../services/patientService';
 
 const PaymentHistory = () => {
-  const [payments, setPayments] = useState([]);
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('payments');
 
   useEffect(() => {
     fetchData();
@@ -16,14 +14,10 @@ const PaymentHistory = () => {
     setLoading(true);
     setError('');
     try {
-      const [paymentsRes, billsRes] = await Promise.all([
-        patientService.getPayments(),
-        patientService.getBills()
-      ]);
-      setPayments(paymentsRes.data?.data || []);
+      const billsRes = await patientService.getBills();
       setBills(billsRes.data?.data || []);
     } catch (err) {
-      setError(err.message || 'Failed to fetch payment history');
+      setError(err.message || 'Failed to fetch bills');
     } finally {
       setLoading(false);
     }
@@ -64,37 +58,8 @@ const PaymentHistory = () => {
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Payment History</h2>
-          <p className="text-gray-500 text-sm mt-1">View your bills and payment history</p>
-        </div>
-
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('payments')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'payments'
-                ? 'bg-[#007a8a] text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">payments</span>
-              Payments
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab('bills')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'bills'
-                ? 'bg-[#007a8a] text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">receipt_long</span>
-              Bills
-            </span>
-          </button>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Bills</h2>
+          <p className="text-gray-500 text-sm mt-1">View your bills</p>
         </div>
 
         {error && (
@@ -111,42 +76,6 @@ const PaymentHistory = () => {
             <span className="material-symbols-outlined text-5xl animate-spin text-[#007a8a]">progress_activity</span>
             <p className="text-gray-500 mt-3">Loading...</p>
           </div>
-        ) : activeTab === 'payments' ? (
-          payments.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <span className="material-symbols-outlined text-5xl mb-3">credit_card_off</span>
-              <p className="text-lg font-medium">No Payment History</p>
-              <p className="text-sm">You haven't made any payments yet</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {payments.map((payment) => (
-                <div key={payment._id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#007a8a]/10 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-[#007a8a]">paid</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">
-                          Payment - {formatCurrency(payment.amount)}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          {payment.description || 'Payment for services'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(payment.status || 'paid')}`}>
-                        {payment.status || 'Paid'}
-                      </span>
-                      <p className="text-sm text-gray-500 mt-1">{formatDate(payment.date)}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
         ) : bills.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <span className="material-symbols-outlined text-5xl mb-3">receipt_long</span>

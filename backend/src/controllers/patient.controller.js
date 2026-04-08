@@ -159,7 +159,7 @@ const bookAppointment = asyncHandler(async (req, res) => {
     date: new Date(date),
     time,
     reason,
-    status: "pending",
+    status: "confirmed",
   });
 
   const createdAppointment = await Appointment.findById(appointment._id)

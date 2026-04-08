@@ -9,7 +9,6 @@ import {
   Receipt,
   Stethoscope,
   CreditCard,
-  Settings,
   LogOut,
   UserCircle,
   History,
@@ -103,11 +102,6 @@ const Sidebar = () => {
       </div>
 
       <div className="px-3 py-4 space-y-2 border-t border-gray-100">
-        <SidebarItem
-          icon={<Settings size={18} />}
-          label="Settings"
-          onClick={() => console.log("Settings clicked")}
-        />
         <SidebarItem
           icon={<LogOut size={18} />}
           label="Sign Out"

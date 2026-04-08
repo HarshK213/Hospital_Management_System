@@ -33,7 +33,6 @@ const patientSchema = mongoose.Schema(
     },
     emailVerificationTokenExpiry: {
       type: Date || null,
-      index: { expires: 0 },
     },
     providers: {
       type: String,

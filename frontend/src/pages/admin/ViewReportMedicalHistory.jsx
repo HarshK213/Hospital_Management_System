@@ -28,14 +28,14 @@ const ViewReportMedicalHistory = () => {
       );
       const data = response.data.data;
       console.log(data);
-      if (data && data.patient_id) {
-        setPatient(data.patient_id);
+      if (data && data.medical_records) {
+        setPatient(null);
         setMedicalHistory(data.medical_records);
-      } else if (Array.isArray(data) && data.length === 0) {
-        setError("No medical history found for this patient");
+      } else if (Array.isArray(data) && data.length > 0) {
+        setPatient(null);
+        setMedicalHistory(data);
       } else {
-        setPatient(data);
-        setMedicalHistory(null);
+        setError("No medical history found for this patient");
       }
     } catch (err) {
       setError(err.message || "Patient not found");
@@ -125,7 +125,7 @@ const ViewReportMedicalHistory = () => {
           <div className="space-y-6">
             {medicalHistory.map((record, index) => (
               <div
-                key={record.id || index}
+                key={record._id || index}
                 className="bg-white rounded-xl border border-gray-200 overflow-hidden"
               >
                 <div className="bg-[#007a8a] px-6 py-4">
@@ -133,7 +133,7 @@ const ViewReportMedicalHistory = () => {
                     Medical Record #{index + 1}
                   </h3>
                   <p className="text-white/80 text-sm">
-                    Last updated: {formatDate(record.updatedAt)}
+                    Date: {formatDate(record.date)}
                   </p>
                 </div>
 
